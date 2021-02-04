@@ -1,0 +1,9 @@
+* Code Generation
+  Gradle > Tasks > other > compileQuerydsl
+
+* Dependencies
+  com.querydsl:querydsl-apt
+  = Q코드 생성 해주는 라이브러리
+
+  com.querydsl:querydsl-jpa
+  = 쿼리를 만들어주는 라이브러리
