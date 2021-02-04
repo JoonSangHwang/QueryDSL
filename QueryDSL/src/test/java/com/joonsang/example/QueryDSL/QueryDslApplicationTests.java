@@ -66,18 +66,32 @@ class QueryDslApplicationTests {
 		 * Q클래스 인스턴스를 사용하는 2가지 방법
 		 *
 		 *   1. 별칭 직접 지정
-		 *   2. 기본 인스턴스 사용
-		 *   3. 기본 인스턴스의 import static 사용 (추천)
+		 *   2-1. 기본 인스턴스 사용
+		 *   2-2. 기본 인스턴스의 import static 사용 (추천)
 		 */
 
 //		QMember m = new QMember("m");	// 1. 별칭 직접 지정
-//		QMember m = QMember.member;		// 2. 기본 인스턴스 사용
+//		QMember m = QMember.member;		// 2-1. 기본 인스턴스 사용
 
-		// 3. 기본 인스턴스의 import static 사용
+		// 2-2. 기본 인스턴스의 import static 사용
 		Member findMember = queryFactory
 				.select(member)
 				.from(member)
 				.where(member.username.eq("member1"))
+				.fetchOne();
+
+		assertThat(findMember.getUsername()).isEqualTo("member1");
+	}
+
+	@Test
+	@DisplayName("QueryDSL 사용 => 이름이 member1 이면서 나이가 10살인 멤버를 찾아라")
+	public void search() {
+		Member findMember = queryFactory
+				.selectFrom(member)
+				.where(
+						member.username.eq("member1") ,
+						member.age.eq(10)
+				)
 				.fetchOne();
 
 		assertThat(findMember.getUsername()).isEqualTo("member1");

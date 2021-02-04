@@ -41,3 +41,23 @@
   - spring.jpa.properties.hibernate.use_sql_comments = true
   - 참고로, JPQL 쿼리문에서의 Alias 는 Q클래스 들어가보면 확인 할 수 있는데...
     같은 테이블을 Join 할 경우 겹치니까 Q클래스 인스턴스를 1번 방법으로 사용하자
+
+* QueryDSL 검색 조건
+  - 메서드 체인
+    .and()
+    .or()
+  - 검색 조건
+    .eq("A")                  == A
+    .ne("A")                  != A
+    .eq("A").not()            != A
+    .goe(1)                   >= 1
+    .gt(1)                    >  1
+    .loe(1)                   <= 1
+    .lt(1)                    <  1
+    .isNotNull()              is not null
+    .in("A", "B")             in ("A", "B")
+    .notIn("A", "B")          not in ("A", "B")
+    .between("A", "B")        between
+    .like("A%")               Like "A%"
+    .contains("A")            Like "%A%"
+    .startsWith("A")          Like "A%"
