@@ -12,6 +12,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
 
+import static com.joonsang.example.QueryDSL.entity.QMember.*;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @SpringBootTest
@@ -60,11 +61,23 @@ class QueryDslApplicationTests {
 	@Test
 	@DisplayName("QueryDSL 사용 => member1을 찾아라")
 	public void startQuerydsl() {
-		QMember m = new QMember("m");
+
+		/**
+		 * Q클래스 인스턴스를 사용하는 2가지 방법
+		 *
+		 *   1. 별칭 직접 지정
+		 *   2. 기본 인스턴스 사용
+		 *   3. 기본 인스턴스의 import static 사용 (추천)
+		 */
+
+//		QMember m = new QMember("m");	// 1. 별칭 직접 지정
+//		QMember m = QMember.member;		// 2. 기본 인스턴스 사용
+
+		// 3. 기본 인스턴스의 import static 사용
 		Member findMember = queryFactory
-				.select(m)
-				.from(m)
-				.where(m.username.eq("member1"))
+				.select(member)
+				.from(member)
+				.where(member.username.eq("member1"))
 				.fetchOne();
 
 		assertThat(findMember.getUsername()).isEqualTo("member1");
