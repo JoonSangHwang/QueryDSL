@@ -3,6 +3,7 @@ package com.joonsang.example.QueryDSL;
 import com.joonsang.example.QueryDSL.entity.Member;
 import com.joonsang.example.QueryDSL.entity.QMember;
 import com.joonsang.example.QueryDSL.entity.Team;
+import com.querydsl.core.QueryResults;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
+
+import java.util.List;
 
 import static com.joonsang.example.QueryDSL.entity.QMember.*;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -95,6 +98,35 @@ class QueryDslApplicationTests {
 				.fetchOne();
 
 		assertThat(findMember.getUsername()).isEqualTo("member1");
+	}
+
+	@Test
+	@DisplayName("QueryDSL 사용 => 조회 결과")
+	public void searchResult() {
+		// 리스트 조회
+		List<Member> fetch = queryFactory
+				.selectFrom(member)
+				.fetch();
+
+		// 단 건
+		Member findMember1 = queryFactory
+				.selectFrom(member)
+				.fetchOne();
+
+		// 처음 한 건 조회
+		Member findMember2 = queryFactory
+				.selectFrom(member)
+				.fetchFirst();
+
+		// 페이징에서 사용
+		QueryResults<Member> results = queryFactory
+				.selectFrom(member)
+				.fetchResults();
+
+		// count 쿼리로 변경
+		long count = queryFactory
+				.selectFrom(member)
+				.fetchCount();
 	}
 
 
