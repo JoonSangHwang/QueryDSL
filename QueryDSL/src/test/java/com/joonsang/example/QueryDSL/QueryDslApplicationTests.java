@@ -2,6 +2,7 @@ package com.joonsang.example.QueryDSL;
 
 import com.joonsang.example.QueryDSL.entity.Member;
 import com.joonsang.example.QueryDSL.entity.QMember;
+import com.joonsang.example.QueryDSL.entity.QTeam;
 import com.joonsang.example.QueryDSL.entity.Team;
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.Tuple;
@@ -18,7 +19,7 @@ import java.util.List;
 
 import static com.joonsang.example.QueryDSL.entity.QMember.*;
 import static com.joonsang.example.QueryDSL.entity.QTeam.team;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.*;
 
 @SpringBootTest
 @Transactional
@@ -48,6 +49,8 @@ class QueryDslApplicationTests {
 		em.persist(new Member(null, 50, teamB));
 		em.persist(new Member("member5", 60));
 		em.persist(new Member("member6", 70));
+		em.persist(new Member("teamA", 80));
+		em.persist(new Member("teamB", 90));
 	}
 
 	@Test
@@ -147,8 +150,7 @@ class QueryDslApplicationTests {
 				.orderBy(member.age.desc(), member.username.asc().nullsLast())
 				.fetch();
 
-		for (Member m : result)
-			System.out.println("result=" + m + "		-> Team = " + m.getTeam());
+		log(result);
 	}
 
 	@Test
@@ -161,8 +163,7 @@ class QueryDslApplicationTests {
 				.limit(2) 	//최대 2건 조회
 				.fetch();
 
-		for (Member m : result)
-			System.out.println("result=" + m + "		-> Team = " + m.getTeam());
+		log(result);
 
 		assertThat(result.size()).isEqualTo(2);
 	}
@@ -194,7 +195,7 @@ class QueryDslApplicationTests {
 						member.age.min())	// 최소
 				.from(member)
 				.fetch();
-		
+
 		for (Tuple m : result)
 			System.out.println("result=" + m);
 
@@ -227,6 +228,47 @@ class QueryDslApplicationTests {
 		assertThat(teamB.get(member.age.avg())).isGreaterThan(9);
 	}
 
+	@Test
+	@DisplayName("Join: TeamA 에 속한 멤버를 구하라")
+	public void join() throws Exception {
+		QMember member = QMember.member;
+		QTeam team = QTeam.team;
+
+		List<Member> result = queryFactory
+				.selectFrom(member)
+				.join(member.team, team)
+				.where(team.name.eq("teamA"))
+				.fetch();
+
+		log(result);
+
+		assertThat(result)
+				.extracting("username")
+				.containsExactly("member1", "member2");
+	}
+
+	/**
+	 * 세타 조인(연관관계가 없는 필드로 조인)
+	 */
+	@Test
+	@DisplayName("세타 Join: 회원의 이름이 팀 이름과 같은 회원 조회")
+	public void theta_join() throws Exception {
+		List<Member> result = queryFactory
+				.select(member)
+				.from(member, team)
+				.where(member.username.eq(team.name))
+				.fetch();
+
+		log(result);
+
+		assertThat(result)
+				.extracting("username")
+				.containsExactly("teamA", "teamB");
+	}
+
+
+
+
 
 
 
@@ -236,4 +278,13 @@ class QueryDslApplicationTests {
 	void contextLoads() {
 	}
 
+	public void log(List<Member> result) {
+		System.out.println("-------------------------------------------");
+		System.out.println("-------------------------------------------");
+		for (Member m : result) {
+			System.out.println("result=" + m + "		-> Team = " + m.getTeam());
+		}
+		System.out.println("-------------------------------------------");
+		System.out.println("-------------------------------------------");
+	}
 }
