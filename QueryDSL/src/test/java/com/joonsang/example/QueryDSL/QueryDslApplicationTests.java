@@ -145,10 +145,43 @@ class QueryDslApplicationTests {
 				.orderBy(member.age.desc(), member.username.asc().nullsLast())
 				.fetch();
 
-		for (Member m : result) {
+		for (Member m : result)
 			System.out.println("result=" + m + "		-> Team = " + m.getTeam());
-		}
 	}
+
+	@Test
+	@DisplayName("QueryDSL 사용 => 페이징1")
+	public void paging1() {
+		List<Member> result = queryFactory
+				.selectFrom(member)
+				.orderBy(member.username.desc())
+				.offset(1) 	//0부터 시작(zero index)
+				.limit(2) 	//최대 2건 조회
+				.fetch();
+
+		for (Member m : result)
+			System.out.println("result=" + m + "		-> Team = " + m.getTeam());
+
+		assertThat(result.size()).isEqualTo(2);
+	}
+
+	@Test
+	@DisplayName("QueryDSL 사용 => 페이징2 (카운트 쿼리와 함께 전체 조회)")
+	public void paging2() {
+		QueryResults<Member> queryResults = queryFactory
+				.selectFrom(member)
+				.orderBy(member.username.desc())
+				.offset(1)
+				.limit(2)
+				.fetchResults();
+
+		assertThat(queryResults.getTotal()).isGreaterThan(4);
+		assertThat(queryResults.getLimit()).isEqualTo(2);
+		assertThat(queryResults.getOffset()).isEqualTo(1);
+		assertThat(queryResults.getResults().size()).isEqualTo(2);
+	}
+
+
 
 
 	@Test
