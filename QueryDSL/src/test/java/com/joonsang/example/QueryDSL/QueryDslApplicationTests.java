@@ -12,7 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceContext;
+import javax.persistence.PersistenceUnit;
 import javax.transaction.Transactional;
 
 import java.util.List;
@@ -28,6 +30,9 @@ class QueryDslApplicationTests {
 
 	@PersistenceContext
 	EntityManager em;
+
+	@PersistenceUnit
+	EntityManagerFactory emf;
 
 	JPAQueryFactory queryFactory;
 
@@ -305,6 +310,39 @@ class QueryDslApplicationTests {
 			System.out.println("t=" + tuple);
 		}
 	}
+
+
+	@Test
+	@DisplayName("페치조인: 미적용")
+	public void fetchJoinNo() throws Exception {
+		em.flush();
+		em.clear();
+		Member findMember = queryFactory
+				.selectFrom(member)
+				.where(member.username.eq("member1"))
+				.fetchOne();
+
+		// 로딩 초기화 여부
+		boolean loaded = emf.getPersistenceUnitUtil().isLoaded(findMember.getTeam());
+		assertThat(loaded).as("페치 조인 미적용").isFalse();
+	}
+
+	@Test
+	@DisplayName("페치조인: 적용")
+	public void fetchJoinUse() throws Exception {
+		em.flush();
+		em.clear();
+
+		Member findMember = queryFactory
+				.selectFrom(member)
+				.join(member.team, team).fetchJoin()
+				.where(member.username.eq("member1"))
+				.fetchOne();
+
+		boolean loaded = emf.getPersistenceUnitUtil().isLoaded(findMember.getTeam());
+		assertThat(loaded).as("페치 조인 적용").isTrue();
+	}
+
 
 
 
