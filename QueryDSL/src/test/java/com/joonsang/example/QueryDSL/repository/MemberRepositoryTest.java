@@ -5,6 +5,7 @@ import com.joonsang.example.QueryDSL.dto.MemberTeamDto;
 import com.joonsang.example.QueryDSL.entity.Member;
 import com.joonsang.example.QueryDSL.entity.Team;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
@@ -35,10 +36,9 @@ class MemberRepositoryTest {
     @Autowired
     MemberRepository memberRepository;
 
-    JPAQueryFactory queryFactory;
-
     @Test
-    public void searchTest() {
+    @DisplayName("동적 쿼리와 성능 최적화 조회 - Builder 사용")
+    public void searchByBuilderTest() {
         Team teamA = new Team("teamA");
         Team teamB = new Team("teamB");
         em.persist(teamA);
@@ -60,6 +60,34 @@ class MemberRepositoryTest {
         condition.setTeamName("teamB");
 
         List<MemberTeamDto> result = memberRepository.searchByBuilder(condition);
+        assertThat(result).extracting("username").containsExactly("member4");
+    }
+
+
+    @Test
+    @DisplayName("동적 쿼리와 성능 최적화 조회 - Where절 파라미터 사용")
+    public void searchTest() {
+        Team teamA = new Team("teamA");
+        Team teamB = new Team("teamB");
+        em.persist(teamA);
+        em.persist(teamB);
+
+        Member member1 = new Member("member1", 10, teamA);
+        Member member2 = new Member("member2", 20, teamA);
+        Member member3 = new Member("member3", 30, teamB);
+        Member member4 = new Member("member4", 40, teamB);
+
+        em.persist(member1);
+        em.persist(member2);
+        em.persist(member3);
+        em.persist(member4);
+
+        MemberSearchCondition condition = new MemberSearchCondition();
+        condition.setAgeGoe(35);
+        condition.setAgeLoe(40);
+        condition.setTeamName("teamB");
+
+        List<MemberTeamDto> result = memberRepository.search(condition);
         assertThat(result).extracting("username").containsExactly("member4");
     }
 

@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface MemberRepositoryCustom {
     public List<MemberTeamDto> searchByBuilder(MemberSearchCondition condition);
+
+    public List<MemberTeamDto> search(MemberSearchCondition condition);
 }
