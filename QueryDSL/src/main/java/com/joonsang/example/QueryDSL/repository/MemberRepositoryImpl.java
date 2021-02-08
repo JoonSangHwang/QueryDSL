@@ -206,6 +206,9 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
     }
 
 
+    /**
+     * 데이터 내용과 전체 카운트를 별도로 조회
+     */
     @Override
     public Page<MemberTeamDto> searchPageComplex(MemberSearchCondition condition, Pageable pageable) {
         return null;

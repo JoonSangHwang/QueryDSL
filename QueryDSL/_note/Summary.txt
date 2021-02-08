@@ -79,3 +79,9 @@
   3. 단순한 페이징, fetch() 사용
     - countQuery.fetchCount() 를 사용하여 카운트 쿼리 최적화 함.
     - 첫 번째 페이지 or 마지막 페이지 등 카운트 쿼리를 실행 안함으로써 최적화 함.
+
+* 정렬
+  - Sort 를 Querydsl 의 OrderSpecifier 로 변환
+  - 스프링 데이터 JPA 는 자신의 정렬(Sort)을 Querydsl 의 정렬(OrderSpecifier)로 편리하게 변경하는 기능을 제공한다.
+  - 정렬(Sort)은 조건이 조금만 복잡해져도 Pageable 의 Sort 기능을 사용하기 어렵다.
+    루트 엔티티 범위를 넘어가는 동적 정렬 기능이 필요하면 스프링 데이터 페이징이 제공하는 Sort 를 사용하기 보다는 파라미터를 받아서 직접 처리하는 것을 권장.
