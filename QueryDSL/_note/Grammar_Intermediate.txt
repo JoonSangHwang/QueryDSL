@@ -16,3 +16,8 @@
   - 별칭이 다를 때: username.as("memberName")
                   ExpressionUtils.as(source,alias)
   - 중복 제거 : distinct()
+
+* 동적 쿼리를 해결
+  1. BooleanBuilder
+    - SQL Where Condition
+  2. Where 다중 파라미터 사용

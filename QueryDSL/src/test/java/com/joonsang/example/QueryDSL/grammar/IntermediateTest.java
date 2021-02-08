@@ -5,6 +5,7 @@ import com.joonsang.example.QueryDSL.dto.QMemberDto;
 import com.joonsang.example.QueryDSL.entity.Member;
 import com.joonsang.example.QueryDSL.entity.QMember;
 import com.joonsang.example.QueryDSL.entity.Team;
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
@@ -159,6 +160,41 @@ public class IntermediateTest {
         log(result, "memberDto");
     }
 
+    @Test
+    @DisplayName("BooleanBuilder 활용 - SQL Where Condition")
+    public void booleanBuilder() throws Exception {
+        String usernameParam = "member1";
+        Integer ageParam = 10;
+
+        // == Where Condition
+        BooleanBuilder builder = new BooleanBuilder();
+        if (usernameParam != null) {
+            builder.and(member.username.eq(usernameParam));
+        }
+
+        if (ageParam != null) {
+            builder.and(member.age.eq(ageParam));
+        }
+
+        List<Member> result = queryFactory
+                .selectFrom(member)
+                .where(builder)
+                .fetch();
+        // == Where Condition
+
+        assertThat(result.size()).isEqualTo(1);
+    }
+
+    @Test public void whereParam() throws Exception {
+        String usernameParam = "member1";
+        Integer ageParam = 10;
+        List<Member> result = searchMember2(usernameParam, ageParam);
+        Assertions.assertThat(result.size()).isEqualTo(1);
+    }
+
+
+
+    
 
 
 
