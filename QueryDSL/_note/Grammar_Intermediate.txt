@@ -21,3 +21,6 @@
   1. BooleanBuilder
     - SQL Where Condition
   2. Where 다중 파라미터 사용
+
+* 벌크 연산
+  - 벌크 연산은 영속성 컨텍스트를 무시하고 DB 에 다이렉트 날라간다. 그러면, 1차 캐시와 DB 과 상태가 달라지기 때문에 flush, clear 필수

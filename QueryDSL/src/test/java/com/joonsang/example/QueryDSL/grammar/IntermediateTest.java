@@ -222,6 +222,23 @@ public class IntermediateTest {
     }
 
 
+    @Test
+    @DisplayName("벌크 연산 - 나이 변경")
+    public void bulk1() throws Exception {
+        // 벌크 연산은 영속성 컨텍스트를 무시하고 DB 에 다이렉트 날라간다.
+        // 그러면, 1차 캐시와 DB 과 상태가 달라지기 때문에 flush , clear 필수
+        long count = queryFactory
+                .update(member)
+                .set(member.username, "비회원")
+                .where(member.age.lt(28))
+                .execute();
+
+        em.flush();
+        em.clear();
+    }
+
+
+
 
 
 
