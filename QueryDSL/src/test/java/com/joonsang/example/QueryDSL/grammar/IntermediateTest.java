@@ -1,6 +1,7 @@
 package com.joonsang.example.QueryDSL.grammar;
 
 import com.joonsang.example.QueryDSL.dto.MemberDto;
+import com.joonsang.example.QueryDSL.dto.QMemberDto;
 import com.joonsang.example.QueryDSL.entity.Member;
 import com.joonsang.example.QueryDSL.entity.QMember;
 import com.joonsang.example.QueryDSL.entity.Team;
@@ -124,7 +125,7 @@ public class IntermediateTest {
 
         List<MemberDto> result = queryFactory
                 .select(Projections.fields(MemberDto.class,
-                        member.username.as("name"),
+                        member.username.as("username"),         // 왼쪽은 bean 의 프로퍼티 <-> 오른쪽은 별칭
                         ExpressionUtils.as(JPAExpressions.select(memberSub.age.max()).from(memberSub), "age")))
                 .from(member)
                 .fetch();
@@ -135,13 +136,25 @@ public class IntermediateTest {
     @Test
     @DisplayName("Projection QueryDSL 사용 (생성자) 3/3")
     public void projection7() throws Exception {
-        // 생성자는 프로퍼티의 타입이 일치해야 들어감
+        // 생성자는 프로퍼티의 타입이 일치해야 들어감, 또한 이상한 프로퍼티를 쿼리문에 작성할 경우 런타임 시에 오류가 발생하는 불편함이 있음
         List<MemberDto> result = queryFactory
                 .select(Projections.constructor(MemberDto.class,
                         member.username,
                         member.age))
                 .from(member)
                 .fetch();
+
+        log(result, "memberDto");
+    }
+
+    @Test
+    @DisplayName("Projection QueryDSL 사용 (생성자) -- @QueryProjection 활용")
+    public void projection8() throws Exception {
+        // 이 방법은 컴파일러로 타입을 체크할 수 있으므로 가장 안전한 방법이다.
+        // 다만 DTO에 QueryDSL 어노테 이션을 유지해야 하는 점과 DTO까지 Q 파일을 생성해야 하는 단점이 있다.
+        List<MemberDto> result = queryFactory
+                .select(new QMemberDto(member.username, member.age))
+                .from(member).fetch();
 
         log(result, "memberDto");
     }

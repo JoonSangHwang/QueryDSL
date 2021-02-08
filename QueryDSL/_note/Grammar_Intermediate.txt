@@ -2,3 +2,17 @@
   - SELECT 대상
   - 프로젝션 타입이 하나 이상 ? >>> 타입 명확하게 지정
   - 프로젝션 타입이 둘 이상 ? >>> 튜플이나 DTO 로 조회
+
+* 프로젝션 DTO 로 결과 반환
+  1. 프로퍼티 접근
+    - bean
+  2. 필드 접근
+    - fields
+  3. 생성자 사용
+    - constructor
+    - @QueryProjection : import 를 해야하므로, QueryDSL 의존성을 가지게 됨. 그러므로 DTO 는 순수하지 않음
+
+* 프로젝션, 기타
+  - 별칭이 다를 때: username.as("memberName")
+                  ExpressionUtils.as(source,alias)
+  - 중복 제거 : distinct()
