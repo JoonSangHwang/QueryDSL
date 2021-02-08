@@ -3,13 +3,16 @@ package com.joonsang.example.QueryDSL.repository;
 import com.joonsang.example.QueryDSL.dto.MemberSearchCondition;
 import com.joonsang.example.QueryDSL.dto.MemberTeamDto;
 import com.joonsang.example.QueryDSL.dto.QMemberTeamDto;
+import com.joonsang.example.QueryDSL.entity.Member;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.support.PageableExecutionUtils;
 
 import java.util.List;
 
@@ -139,6 +142,31 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
         long cnt = getCnt(condition);
 
         return new PageImpl<>(result, pageable, cnt);
+    }
+
+    /**
+     * 단순한 페이징, fetch() 사용
+     * - CountQuery 최적화
+     **/
+    @Override
+    public Page<MemberTeamDto> searchPageSimple3(MemberSearchCondition condition, Pageable pageable) {
+        // 리스트 쿼리
+        List<MemberTeamDto> result = getMemberTeamDtos(condition, pageable);
+
+        // 카운트 쿼리
+        JPAQuery<Member> countQuery = jpaQueryFactory
+                .select(member)
+                .from(member)
+                .leftJoin(member.team, team)
+                .where(
+                        usernameEq(condition.getUsername()),
+                        teamNameEq(condition.getTeamName()),
+                        ageGoe(condition.getAgeGoe()),
+                        ageLoe(condition.getAgeLoe())
+                );
+
+        // 시작 페이지거나 마지막 페이지라면? 카운트 쿼리를 실행을 안함으로서 최적화 시킴
+        return PageableExecutionUtils.getPage(result, pageable, () -> countQuery.fetchCount());
     }
 
     private long getCnt(MemberSearchCondition condition) {
