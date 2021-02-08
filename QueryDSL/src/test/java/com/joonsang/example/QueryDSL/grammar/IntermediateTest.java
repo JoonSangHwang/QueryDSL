@@ -11,6 +11,8 @@ import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.querydsl.core.types.dsl.BooleanExpression;
+
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -18,8 +20,11 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 import static com.joonsang.example.QueryDSL.entity.QMember.member;
+import static com.joonsang.example.QueryDSL.entity.QTeam.team;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
@@ -185,16 +190,43 @@ public class IntermediateTest {
         assertThat(result.size()).isEqualTo(1);
     }
 
-    @Test public void whereParam() throws Exception {
+    @Test
+    @DisplayName("동적 쿼리 - Where 다중 파라미터 사용")
+    public void whereParam() throws Exception {
         String usernameParam = "member1";
         Integer ageParam = 10;
-        List<Member> result = searchMember2(usernameParam, ageParam);
-        Assertions.assertThat(result.size()).isEqualTo(1);
+
+        List<Member> result = queryFactory
+                .selectFrom(member)
+                .where(usernameEq(usernameParam),
+                        ageEq(ageParam))
+                .fetch();
+
+        assertThat(result.size()).isEqualTo(1);
+    }
+
+    private BooleanBuilder ageEq(Integer age) {
+        return nullSafeBuilder(() -> member.age.eq(age));
+    }
+
+    private BooleanBuilder usernameEq(String usernameCond) {
+        return nullSafeBuilder(() -> member.username.eq(usernameCond));
+    }
+
+    public static BooleanBuilder nullSafeBuilder(Supplier<BooleanExpression> f) {
+        try {
+            return new BooleanBuilder(f.get());
+        } catch (IllegalArgumentException e) {
+            return new BooleanBuilder();
+        }
     }
 
 
 
-    
+
+
+
+
 
 
 
